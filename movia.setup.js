@@ -7,8 +7,22 @@ export const modals = {
             <h1> Basic Modal </h1>
             <p>This is a simple modal.</p>
         `,
+        scrollTarget:null,
         closeMethods: ["button", "overlay", "escape"],
         destroyOnClose:false,
+        // false : close(false),close() thì không gỡ khỏi DOM
+        // true : close(true),destroy() thì gỡ khỏi DOM
+        // Không truyền destroyOnClose: Kiểm soát movia có thanh cuộn thì không gỡ khỏi DOM
+        cssClass: [],// Thay đổi cssClass theo từng yêu cầu
+        onReady: () => {
+            console.log("movia 1 is ready");
+        },
+        onOpen: () =>{
+            console.log("movia 1 opened")
+        } ,
+        onClose: () =>{
+            console.log("movia 1 Closed")
+        },
     }),
     movia2: new Movia({
         id:"buttons-modal",
@@ -22,13 +36,13 @@ export const modals = {
         onClick: () => {
             confirm("Action confirmed!");
             modal2.close();
-        }
-        
+        },
+        scrollTarget:null,
     }),
 
     movia3: new Movia({
         id:"large-content-modal",
-        enableScrollLock: true,
+        scrollTarget:null,
         content: `
         <h1>Large Content Modal</h1>
         <p>This modal contains a large amount of content, suitable for displaying extended text or information.</p>

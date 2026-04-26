@@ -1,5 +1,6 @@
 export const moviaRegistry = new Map(); // Quản lý các instance Movia
 
+const _lockedTargets = new Map() // Lưu trữ các phần tử đã bị khóa scroll và padding gốc của chúng để khôi phục sau này
 const moviaStack = []; // stack Movia hỗ trợ nested Movia
 function _getTopMovia() // Movia trên cùng (dang mở)
 {
@@ -7,7 +8,7 @@ function _getTopMovia() // Movia trên cùng (dang mở)
 }
 
 let SCROLLBAR_WIDTH = null;
-let ORIGINAL_BODY_PADDING_RIGHT = null;
+
 
 function getScrollBarWidth()
 {
@@ -52,6 +53,7 @@ export class Movia{
             onReady: null,
             onOpen: null,
             onClose: null,
+            scrollTarget: null,
 
             closeMethods :[...Movia.defaults.closeMethods],
             cssClass :[...Movia.defaults.cssClass],
@@ -310,21 +312,30 @@ export class Movia{
         }
     }
 
+    _getScrollTarget(){
+        if(this.scrollTarget instanceof HTMLElement) return this.scrollTarget;
+        if(typeof this.scrollTarget === "string"){
+            return document.querySelector(this.scrollTarget) ?? document.body;
+        }
+        return document.body;
+    }
+
     _lockScroll()
     {
-        if(moviaStack.length !== 1) return;
-
-        const sw = getScrollBarWidth();
-
-        const computed = getComputedStyle(document.body).paddingRight;
-        if(ORIGINAL_BODY_PADDING_RIGHT === null){
-            ORIGINAL_BODY_PADDING_RIGHT = computed;
+        const target = this._getScrollTarget();
+        if(_lockedTargets.has(target)){
+            _lockedTargets.get(target).count++;
+            return;
         }
 
+        const sw = getScrollBarWidth();
+        const computed = getComputedStyle(target).paddingRight;
         const current = parseFloat(computed) || 0;
 
-        document.body.style.paddingRight = `${current + sw}px`;
-        document.body.classList.add("no-scroll");
+        target.style.paddingRight = `${current + sw}px`;
+        target.classList.add("no-scroll");
+
+        _lockedTargets.set(target, {count:1, originPaddingRight: computed});
     }
 
     _safeCall(fn,...args)
@@ -391,16 +402,17 @@ export class Movia{
     // Phát tín hiệu đóng
     _unlockScroll()
     {
-        if(moviaStack.length !== 0) return;
+        const target = this._getScrollTarget();
+        if(!_lockedTargets.has(target)) return;
 
-        document.body.classList.remove("no-scroll");
+        const state = _lockedTargets.get(target);
+        state.count--;
 
-        if(ORIGINAL_BODY_PADDING_RIGHT !== null){
-            document.body.style.paddingRight = ORIGINAL_BODY_PADDING_RIGHT;
-            ORIGINAL_BODY_PADDING_RIGHT = null;
-        } else {
-            document.body.style.paddingRight = "";
-        }
+        if(state.count > 0) return;
+        target.classList.remove("no-scroll");
+        target.style.paddingRight = state.originPaddingRight;
+        _lockedTargets.delete(target);
+        
     }
 
     _removeEvents()
@@ -478,6 +490,7 @@ export class Movia{
         this._pendingFooterButtons = [];
         this._pendingFooterContent = null;
         this._pendingContent       = [];
+        this._footerContent = "";
     }
 
     destroy()
