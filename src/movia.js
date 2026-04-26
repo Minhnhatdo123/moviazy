@@ -30,6 +30,12 @@ function getScrollBarWidth()
     return SCROLLBAR_WIDTH;
 }
 
+function _hasScrollbar(target){
+    if(target === document.body || target === document.documentElement){
+        return window.innerWidth > document.documentElement.clientWidth;
+    }
+    return target.scrollHeight > target
+}
 
 export class Movia{
     static defaults = {
@@ -319,7 +325,7 @@ export class Movia{
         }
         return document.body;
     }
-
+    
     _lockScroll()
     {
         const target = this._getScrollTarget();
@@ -328,7 +334,7 @@ export class Movia{
             return;
         }
 
-        const sw = getScrollBarWidth();
+        const sw = _hasScrollbar(target) ? getScrollBarWidth() : 0;
         const computed = getComputedStyle(target).paddingRight;
         const current = parseFloat(computed) || 0;
 
