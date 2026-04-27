@@ -33,6 +33,7 @@ function getScrollBarWidth()
 function _hasScrollbar(target){
     if(target === document.body || target === document.documentElement){
         return window.innerWidth > document.documentElement.clientWidth;
+        // (viewport vùng hiện thị của cửa sổ trình duyệt) - (chiều rộng nội dung của thẻ HTML)
     }
     return target.scrollHeight > target
 }
