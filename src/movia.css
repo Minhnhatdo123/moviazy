@@ -1,3 +1,20 @@
+.movia-footer-buttons{
+    display: flex;
+    gap: 10px;
+}
+
+.modal-btn {
+    padding: 8px 20px;
+    color: #fff;
+    background: #34495e;
+    border: none;
+    cursor: pointer;
+}
+
+.modal-btn.pull-left {
+    margin-right: auto;
+}
+
 .movia-backdrop {
     position: fixed;
     inset: 0;
