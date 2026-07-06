@@ -156,8 +156,8 @@ export class Movia{
                             </svg>
                         `,
                     classNames:"movia-close",
-                    onClick:this.close.bind(this),
-                    })
+                    onClick:() => this.close()
+                })
             )
         }
         return container;
